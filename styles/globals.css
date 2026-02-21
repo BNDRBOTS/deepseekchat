@@ -2,23 +2,35 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body, #__next {
-  background-color: #111827;
-  color: #f3f4f6;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
-
 @layer base {
-  ::-webkit-scrollbar { width: 8px; height: 8px; }
-  ::-webkit-scrollbar-track { @apply bg-gray-800; }
-  ::-webkit-scrollbar-thumb { @apply bg-gray-600 rounded-full; }
-  ::-webkit-scrollbar-thumb:hover { @apply bg-gray-500; }
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-gray-800;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-600 rounded-full;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-500;
+  }
 }
 
 @layer components {
-  .prose { @apply text-gray-100; }
-  .prose p { @apply my-2; }
-  .prose a { @apply text-deepseek-400 hover:underline; }
+  .prose {
+    @apply text-gray-100;
+  }
+  
+  .prose p {
+    @apply my-2;
+  }
+  
+  .prose a {
+    @apply text-deepseek-400 hover:underline;
+  }
 }
