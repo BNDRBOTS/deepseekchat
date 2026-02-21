@@ -25,26 +25,29 @@ function MyApp({ Component, pageProps }) {
   }, []);
 
   return (
-    <div className="flex h-screen bg-gray-900 text-gray-100">
-      <Sidebar 
-        isOpen={sidebarOpen} 
-        pinnedChats={pinnedChats}
-        setPinnedChats={setPinnedChats}
-        tabs={tabs}
-        setTabs={setTabs}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-      />
-      <main className="flex-1 flex flex-col">
-        <Component 
-          {...pageProps} 
+    <>
+      <style dangerouslySetRef={{ __html: `html, body { background-color: #111827; margin: 0; padding: 0; height: 100%; width: 100%; }` }} />
+      <div className="flex h-screen w-full bg-gray-900 text-gray-100 overflow-hidden font-sans">
+        <Sidebar 
+          isOpen={sidebarOpen} 
           pinnedChats={pinnedChats}
           setPinnedChats={setPinnedChats}
-          activeTab={activeTab}
           tabs={tabs}
+          setTabs={setTabs}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
         />
-      </main>
-    </div>
+        <main className="flex-1 flex flex-col h-full overflow-hidden relative">
+          <Component 
+            {...pageProps} 
+            pinnedChats={pinnedChats}
+            setPinnedChats={setPinnedChats}
+            activeTab={activeTab}
+            tabs={tabs}
+          />
+        </main>
+      </div>
+    </>
   );
 }
 
