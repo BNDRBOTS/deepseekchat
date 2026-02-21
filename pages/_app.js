@@ -12,7 +12,7 @@ function MyApp({ Component, pageProps }) {
   useHotkeys('cmd+k', () => {
     document.getElementById('global-search')?.focus();
   });
-  
+
   useHotkeys('cmd+shift+s', () => {
     setSidebarOpen(!sidebarOpen);
   });
@@ -23,26 +23,38 @@ function MyApp({ Component, pageProps }) {
   }, []);
 
   return (
-    <div className="flex h-screen bg-gray-900 text-gray-100">
-      <Sidebar 
-        isOpen={sidebarOpen} 
-        pinnedChats={pinnedChats}
-        setPinnedChats={setPinnedChats}
-        tabs={tabs}
-        setTabs={setTabs}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-      />
-      <main className="flex-1 flex flex-col">
-        <Component 
-          {...pageProps} 
+    <>
+      <style>{`
+        html, body, #__next {
+          background-color: #111827;
+          color: #f3f4f6;
+          height: 100%;
+          width: 100%;
+          margin: 0;
+          padding: 0;
+        }
+      `}</style>
+      <div style={{ display: 'flex', height: '100vh', backgroundColor: '#111827', color: '#f3f4f6' }} className="flex h-screen bg-gray-900 text-gray-100">
+        <Sidebar
+          isOpen={sidebarOpen}
           pinnedChats={pinnedChats}
           setPinnedChats={setPinnedChats}
-          activeTab={activeTab}
           tabs={tabs}
+          setTabs={setTabs}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
         />
-      </main>
-    </div>
+        <main className="flex-1 flex flex-col">
+          <Component
+            {...pageProps}
+            pinnedChats={pinnedChats}
+            setPinnedChats={setPinnedChats}
+            activeTab={activeTab}
+            tabs={tabs}
+          />
+        </main>
+      </div>
+    </>
   );
 }
 
