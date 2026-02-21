@@ -1,33 +1,54 @@
 import { getSession, saveSession, addMessage, getMessages } from '../../lib/kvStore';
+import { buildContext } from '../../lib/contextManager';
+import { buildSystemPrompt } from '../../lib/reasoningPrompt';
 
 export default async function handler(req, res) {
-  // ... (same method check and API key)
+  if (req.method !== 'POST') return res.status(405).end();
 
-  const { messages, userId = 'anonymous', /* other params */ } = req.body;
+  const { messages, userId = 'anonymous' } = req.body;
+  if (!messages || messages.length === 0) return res.status(400).json({ error: 'No messages' });
 
   try {
-    // Load existing session and messages from KV
-    let session = await getSession(userId);
-    if (!session) {
-      session = { /* default session */ };
-    }
+    const userMessage = messages[messages.length - 1];
+    
+    // 1. Retrieve full history (unlimited)
     const history = await getMessages(userId);
+    
+    // 2. Build explicit context
+    const contextStr = buildContext(history);
+    const systemPrompt = {
+      role: 'system',
+      content: buildSystemPrompt(contextStr)
+    };
 
-    // Combine history with new messages
-    const fullMessages = [...history, ...messages];
+    // 3. Construct DeepSeek payload
+    const payloadMessages = [systemPrompt, userMessage];
 
-    // Call DeepSeek API as before
-    // ...
+    // 4. Call DeepSeek
+    const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages: payloadMessages,
+        temperature: 0.0 // Deterministic
+      })
+    });
 
-    // After getting response, store the new messages
-    await addMessage(userId, messages[messages.length - 1]); // user message
-    await addMessage(userId, assistantResponse); // assistant message
+    if (!response.ok) throw new Error(`DeepSeek API error: ${response.statusText}`);
+    const data = await response.json();
+    const assistantMessage = data.choices[0].message;
 
-    // Update session if needed
-    await saveSession(userId, session);
+    // 5. Commit turn to unlimited memory
+    await addMessage(userId, userMessage);
+    await addMessage(userId, assistantMessage);
 
-    res.status(200).json({ reply: assistantResponse });
+    res.status(200).json({ reply: assistantMessage.content });
   } catch (error) {
-    // error handling
+    console.error('CHAT API ERROR:', error);
+    res.status(500).json({ error: error.message });
   }
 }
