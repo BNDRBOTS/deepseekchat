@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import Sidebar from '../components/Sidebar';
-import '../styles/globals.css';
+import '../styles/globals.css'; // MUST BE HERE FOR TAILWIND
 
 function MyApp({ Component, pageProps }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -9,23 +9,27 @@ function MyApp({ Component, pageProps }) {
   const [activeTab, setActiveTab] = useState('main');
   const [tabs, setTabs] = useState([{ id: 'main', name: 'Chat', pinned: false }]);
 
-  // Command+K for search, Command+Shift+S for sidebar [citation:1]
+  // Command+K for search, Command+Shift+S for sidebar
   useHotkeys('cmd+k', () => {
     document.getElementById('global-search')?.focus();
   });
   
   useHotkeys('cmd+shift+s', () => {
-    setSidebarOpen(!sidebarOpen);
+    setSidebarOpen(prev => !prev);
   });
 
   // Load pinned chats from localStorage
   useEffect(() => {
-    const saved = localStorage.getItem('pinnedChats');
-    if (saved) setPinnedChats(JSON.parse(saved));
+    try {
+      const saved = localStorage.getItem('pinnedChats');
+      if (saved) setPinnedChats(JSON.parse(saved));
+    } catch(e) {
+      console.error('LocalStorage error:', e);
+    }
   }, []);
 
   return (
-    <div className="flex h-screen bg-gray-900 text-gray-100">
+    <div className="flex h-screen w-full bg-gray-900 text-gray-100 overflow-hidden font-sans">
       <Sidebar 
         isOpen={sidebarOpen} 
         pinnedChats={pinnedChats}
@@ -35,7 +39,7 @@ function MyApp({ Component, pageProps }) {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
       />
-      <main className="flex-1 flex flex-col">
+      <main className="flex-1 flex flex-col h-full overflow-hidden relative">
         <Component 
           {...pageProps} 
           pinnedChats={pinnedChats}
